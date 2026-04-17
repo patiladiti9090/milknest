@@ -1,8 +1,4 @@
-<%--
-    Document   : test
-    Created on : 28 Oct 2024, 1:08:41 pm
-    Author     : patil
---%>
+
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
