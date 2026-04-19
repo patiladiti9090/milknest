@@ -1,0 +1,13 @@
+com\milknest\milknest_online_services\JakartaRestConfiguration.class
+com\milknest\milknest_online_services\Product.class
+com\milknest\milknest_online_services\User.class
+com\milknest\milknest_online_services\CartServlet.class
+com\milknest\milknest_online_services\DataAccess.class
+com\milknest\milknest_online_services\Payment.class
+com\milknest\milknest_online_services\Admin.class
+com\milknest\milknest_online_services\Cart.class
+com\milknest\milknest_online_services\OrderServlet.class
+com\milknest\milknest_online_services\resources\JakartaEE10Resource.class
+com\milknest\milknest_online_services\category.class
+com\milknest\milknest_online_services\Customer.class
+com\milknest\milknest_online_services\insertCart.class

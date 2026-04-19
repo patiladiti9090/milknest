@@ -1,96 +1,66 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.milknest.milknest_online_services.Cart"%>
-<%@page import="com.milknest.milknest_online_services.Payment"%>
 
 <%
-String user = (String) session.getAttribute("username");
-if(user == null){
-    response.sendRedirect("Login.jsp");
-    return;
-}
-
 ArrayList<Cart> cartList = (ArrayList<Cart>) session.getAttribute("cart");
-double total = 0;
 
-if(cartList != null){
-    for(Cart c : cartList){
-        total += c.getPrice();
-    }
+if(cartList == null || cartList.isEmpty()){
+    response.sendRedirect("frmCart.jsp");
+    return;
 }
 %>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Payment</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>Payment</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: linear-gradient(to right, #e1f5fe, #fce4ec);
+}
+.card {
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+.btn-custom {
+    background-color: #6a1b9a;
+    color: white;
+}
+</style>
 </head>
 
-<body class="container mt-5">
+<body>
 
+<div class="container mt-5">
 <div class="card p-4">
-    <h2 class="text-center">Payment Page</h2>
 
-    <h4>Total Amount: ? <%=total%></h4>
+<h2 class="text-center mb-4">? Select Payment Method</h2>
 
-    <form method="post">
+<form action="ProcessPayment.jsp" method="post">
 
-        <label>Select Payment Method</label>
-        <select name="paymentMode" class="form-control" required>
-            <option value="">--Select--</option>
-            <option value="Cash">Cash on Delivery</option>
-            <option value="UPI">UPI</option>
-            <option value="Card">Debit/Credit Card</option>
-        </select>
+<div class="form-check">
+<input type="radio" name="paymentMode" value="Cash" required> Cash on Delivery
+</div>
 
-        <br>
+<div class="form-check">
+<input type="radio" name="paymentMode" value="UPI"> UPI
+</div>
 
-        <input type="text" name="upi" class="form-control" placeholder="Enter UPI ID">
-        <input type="text" name="card" class="form-control mt-2" placeholder="Enter Card Number">
+<div class="form-check">
+<input type="radio" name="paymentMode" value="Card"> Card
+</div>
 
-        <br>
+<div class="text-center mt-4">
+<button class="btn btn-custom">Pay Now</button>
+</div>
 
-        <button type="submit" name="payNow" class="btn btn-success">Pay Now</button>
-    </form>
+</form>
+
+</div>
 </div>
 
 </body>
 </html>
-
-<%
-if(request.getParameter("payNow") != null){
-    try{
-        Integer userId = (Integer) session.getAttribute("userId");
-
-        Payment p = new Payment();
-
-        p.setPaymentname("MilkNest Order");
-        p.setPaymentdate(java.time.LocalDate.now().toString());
-        p.setPaymentmode(request.getParameter("paymentMode"));
-        p.setPaymenttotalamount((int) total);
-        p.setQty(cartList.size());
-        p.setDiscount(0);
-        p.setNetamount((int) total);
-        p.setCustomerID(userId);
-
-        boolean status = p.insertPayment(p);
-
-        if(status){
-            session.removeAttribute("cart");
-%>
-<script>
-    alert("Payment Successful!");
-    window.location="Home.jsp";
-</script>
-<%
-        } else {
-%>
-<script>alert("Payment Failed!");</script>
-<%
-        }
-
-    } catch(Exception ex){
-        out.print(ex);
-    }
-}
-%>

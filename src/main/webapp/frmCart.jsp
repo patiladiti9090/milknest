@@ -1,6 +1,5 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="com.milknest.milknest_online_services.Cart"%>
-<%@page import="com.milknest.milknest_online_services.Payment"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +35,7 @@
 
 <body>
 
-<!-- ? LOGIN CHECK -->
+<!-- LOGIN CHECK -->
 <%
 String user = (String) session.getAttribute("username");
 
@@ -50,7 +49,7 @@ if(user == null){
 
     <div class="card p-4">
 
-        <h2 class="text-center mb-4">? Your Cart</h2>
+        <h2 class="text-center mb-4">Your Cart</h2>
 
 <%
     ArrayList<Cart> cartList = (ArrayList<Cart>) session.getAttribute("cart");
@@ -95,10 +94,9 @@ if(user == null){
             </table>
         </div>
 
-        <!-- ? FORM (added hidden fix, structure same) -->
+        <!-- ? ONLY CHANGE: Redirect to Payment.jsp -->
         <div class="text-center mt-3">
-            <form method="post" action="frmCart.jsp">
-                <input type="hidden" name="btnPay" value="true"> <!-- ? ADDED -->
+            <form method="post" action="Payment.jsp">
                 <input type="submit" value="Proceed to Payment"
                 class="btn btn-custom px-4">
             </form>
@@ -109,7 +107,7 @@ if(user == null){
 %>
 
         <div class="text-center">
-            <h4 class="text-danger">? Cart is empty</h4>
+            <h4 class="text-danger">Cart is empty</h4>
         </div>
 
 <%
@@ -122,54 +120,6 @@ if(user == null){
 
     </div>
 </div>
-
-<%
-    // PAYMENT LOGIC (only condition updated)
-    if ("true".equals(request.getParameter("btnPay"))) {
-        try {
-
-            Integer userId = (Integer) session.getAttribute("userId");
-
-            if(userId == null){
-                response.sendRedirect("Login.jsp");
-                return;
-            }
-
-            Payment p = new Payment();
-
-            p.setPaymentname("MilkNest Order");
-            p.setPaymentdate(java.time.LocalDate.now().toString());
-            p.setPaymentmode("Cash");
-            p.setPaymenttotalamount((int) total);
-            p.setQty(cartList.size());
-            p.setDiscount(0);
-            p.setNetamount((int) total);
-
-            p.setCustomerID(userId);
-
-            boolean status = p.insertPayment(p);
-
-            if (status) {
-                session.removeAttribute("cart");
-%>
-                <script>
-                    alert("Payment Successful!");
-                    window.location="Home.jsp";
-                </script>
-<%
-            } else {
-%>
-                <script>
-                    alert("Payment Failed!");
-                </script>
-<%
-            }
-
-        } catch (Exception ex) {
-            out.print("Error: " + ex.getMessage());
-        }
-    }
-%>
 
 </body>
 </html>
