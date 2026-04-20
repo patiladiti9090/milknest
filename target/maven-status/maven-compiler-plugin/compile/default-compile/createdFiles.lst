@@ -10,4 +10,5 @@ com\milknest\milknest_online_services\OrderServlet.class
 com\milknest\milknest_online_services\resources\JakartaEE10Resource.class
 com\milknest\milknest_online_services\category.class
 com\milknest\milknest_online_services\Customer.class
+com\milknest\milknest_online_services\LogoutServlet.class
 com\milknest\milknest_online_services\insertCart.class

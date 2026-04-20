@@ -1,65 +1,151 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="com.milknest.milknest_online_services.category"%>
-<%@page import="java.sql.ResultSet"%>
-
-<%
-    category C = new category();
-
-    String cid = request.getParameter("catid");   // ✅ FIX
-
-    int eid = 0;
-    ResultSet rs2 = null;
-
-    if (cid != null && !cid.equals("")) {        // ✅ FIX
-        eid = Integer.parseInt(cid);
-        rs2 = C.getCatsByid(eid);
-    } else {
-        out.println("Category ID Missing");
-    }
-%>
+<%@page import="java.sql.*"%>
+<%@page import="com.milknest.milknest_online_services.DataAccess"%>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Products</title>
+<title>MilkNest Products</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+
+body {
+    background: linear-gradient(to right, #f8f9fa, #e3f2fd);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+    font-weight: bold;
+    color: #333;
+}
+
+.product-box {
+    border: none;
+    padding: 15px;
+    background: white;
+    text-align: center;
+    border-radius: 15px;
+    height: 100%;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.product-box:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.2);
+}
+
+.product-box img {
+    height: 170px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.product-box h5 {
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.product-box p {
+    font-size: 14px;
+    color: #555;
+}
+
+.price {
+    color: #28a745;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.btn-cart {
+    background: #007bff;
+    color: white;
+    border-radius: 20px;
+    padding: 5px 15px;
+    transition: 0.3s;
+}
+
+.btn-cart:hover {
+    background: #0056b3;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<h2>Products</h2>
+<div class="container mt-4">
+
+<h2 class="mb-4 text-center">? Our Products</h2>
 
 <div class="row">
 
 <%
-    if (rs2 != null) {
-        while (rs2.next()) {
+    try {
 
-            int productid = rs2.getInt("productID");
-            String productname = rs2.getString("productname");
-            double price = rs2.getDouble("productSaleprise");
-            String image = rs2.getString("productImage");
-            String desc = rs2.getString("productDescription");
+        String catid = request.getParameter("catid");
+
+        Connection cn = DataAccess.getConnection();
+
+        PreparedStatement ps = cn.prepareStatement(
+            "SELECT * FROM tb_productsmaster WHERE productCatID=? LIMIT 16"
+        );
+
+        ps.setInt(1, Integer.parseInt(catid));
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
 %>
 
-    <div style="width:200px; border:1px solid #ccc; padding:10px; margin:10px;">
-        <img src="<%=image%>" style="width:100%; height:120px;">
-        <h4><%=productname%></h4>
-        <p><%=desc%></p>
-        <h5>₹ <%=price%></h5>
+    <div class="col-md-3 mb-4">
 
-        <form action="CartServlet" method="post">
-            <input type="hidden" name="productId" value="<%=productid%>">
-            <input type="hidden" name="productName" value="<%=productname%>">
-            <input type="hidden" name="price" value="<%=price%>">
-            <button type="submit">Add to Cart</button>
-        </form>
+        <div class="product-box">
+
+            <img src="<%=rs.getString("productImage")%>"
+                 onerror="this.src='images/default.png'">
+
+            <h5><%=rs.getString("productname")%></h5>
+
+            <p><%=rs.getString("productDescription")%></p>
+
+            <p class="price">? <%=rs.getDouble("productSaleprise")%></p>
+
+            <!-- ? ONLY FIX APPLIED HERE -->
+            <form action="<%=request.getContextPath()%>/CartServlet" method="post">
+    <input type="hidden" name="productId" value="<%=rs.getInt("productID")%>">
+    <input type="hidden" name="productName" value="<%=rs.getString("productname")%>">
+    <input type="hidden" name="price" value="<%=rs.getDouble("productSaleprise")%>">
+
+    <button class="btn btn-cart btn-sm">? Add to Cart</button>
+</form>
+
+        </div>
+
     </div>
 
 <%
         }
+
+        rs.close();
+        ps.close();
+        cn.close();
+
+    } catch (Exception e) {
+%>
+
+    <div class="alert alert-danger">
+        Error: <%=e.getMessage()%>
+    </div>
+
+<%
     }
 %>
 
+</div>
 </div>
 
 </body>
