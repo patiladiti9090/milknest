@@ -1,11 +1,11 @@
-<%@page import="java.util.ArrayList"%>
-<%@page import="com.milknest.milknest_online_services.Cart"%>
+<%@page import="java.sql.*"%>
+<%@page import="com.milknest.milknest_online_services.DataAccess"%>
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Cart</title>
 
-    <!-- Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -35,66 +35,82 @@
 
 <body>
 
-<!-- LOGIN CHECK -->
-<%
-String user = (String) session.getAttribute("username");
-
-if(user == null){
-    response.sendRedirect("Login.jsp");
-    return;
-}
-%>
-
 <div class="container mt-5">
-
     <div class="card p-4">
 
         <h2 class="text-center mb-4">Your Cart</h2>
 
 <%
-    ArrayList<Cart> cartList = (ArrayList<Cart>) session.getAttribute("cart");
     double total = 0;
+    boolean isEmpty = true;
 
-    if (cartList != null && !cartList.isEmpty()) {
+    try {
+        Connection con = DataAccess.getConnection();
+
+        PreparedStatement ps = con.prepareStatement(
+            "SELECT c.cartID, p.productname, c.price FROM tbl_cartmaster c " +
+            "JOIN tb_productsmaster p ON c.productId = p.productID " +
+            "WHERE c.userId=?"
+        );
+
+        ps.setInt(1, 1); // ? TEMP USER (later login use kar)
+
+        ResultSet rs = ps.executeQuery();
 %>
 
         <div class="table-responsive">
             <table class="table table-bordered table-hover text-center">
                 <thead class="table-dark">
                     <tr>
-                        <th>Product ID</th>
+                        <th>Cart ID</th>
                         <th>Product Name</th>
                         <th>Price ?</th>
                     </tr>
                 </thead>
-
                 <tbody>
 
 <%
-        for (Cart c : cartList) {
-            total += c.getPrice();
+        while (rs.next()) {
+            isEmpty = false;
+            total += rs.getDouble("price");
 %>
 
                     <tr>
-                        <td><%=c.getProductId()%></td>
-                        <td><%=c.getProductName()%></td>
-                        <td>? <%=c.getPrice()%></td>
+                        <td><%=rs.getInt("cartID")%></td>
+                        <td><%=rs.getString("productname")%></td>
+                        <td>? <%=rs.getDouble("price")%></td>
                     </tr>
 
 <%
         }
 %>
 
+<%
+        if (!isEmpty) {
+%>
                     <tr class="table-success">
                         <td colspan="2"><b>Total</b></td>
                         <td><b>? <%=total%></b></td>
                     </tr>
+<%
+        }
+%>
 
                 </tbody>
             </table>
         </div>
 
-        <!-- ? ONLY CHANGE: Redirect to Payment.jsp -->
+<%
+        if (isEmpty) {
+%>
+            <div class="text-center">
+                <h4 class="text-danger">Cart is empty</h4>
+            </div>
+<%
+        } else {
+%>
+
+        <!-- PAYMENT BUTTON -->
         <div class="text-center mt-3">
             <form method="post" action="Payment.jsp">
                 <input type="submit" value="Proceed to Payment"
@@ -103,11 +119,17 @@ if(user == null){
         </div>
 
 <%
-    } else {
+        }
+
+        rs.close();
+        ps.close();
+        con.close();
+
+    } catch (Exception e) {
 %>
 
-        <div class="text-center">
-            <h4 class="text-danger">Cart is empty</h4>
+        <div class="alert alert-danger">
+            Error: <%=e.getMessage()%>
         </div>
 
 <%
@@ -116,6 +138,7 @@ if(user == null){
 
         <div class="text-center mt-3">
             <a href="Shop.jsp" class="btn btn-outline-primary">Continue Shopping</a>
+            
         </div>
 
     </div>
