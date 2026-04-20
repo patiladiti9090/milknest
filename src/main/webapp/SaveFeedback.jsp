@@ -80,13 +80,8 @@ body {
     
     <!-- ? HOME BUTTON -->
     <a href="Home.jsp" class="btn btn-primary me-2">? Home</a>
-
-    <!-- ? LOGOUT BUTTON (SAME PAGE CALL) -->
-    <form method="post" style="display:inline;">
-        <input type="hidden" name="action" value="logout">
-        <button class="btn btn-danger">? Logout</button>
-    </form>
-
+    <a href="Login.jsp" class="btn btn-primary me-2">? Logout</a>
+    
 </div>
 
 </div>
