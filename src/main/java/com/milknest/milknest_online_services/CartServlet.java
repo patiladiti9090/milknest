@@ -1,43 +1,59 @@
 package com.milknest.milknest_online_services;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 public class CartServlet extends HttpServlet {
 
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int productId = Integer.parseInt(request.getParameter("productId"));
-        String productName = request.getParameter("productName");
-        double price = Double.parseDouble(request.getParameter("price"));
+        try {
 
-        HttpSession session = request.getSession();
+            // ✅ GET DATA FROM FORM
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            String productName = request.getParameter("productName");
+            double price = Double.parseDouble(request.getParameter("price"));
 
-        ArrayList<Cart> cartList = (ArrayList<Cart>) session.getAttribute("cart");
+            int userId = 1; // 🔥 TEMP USER
 
-        if (cartList == null) {
-            cartList = new ArrayList<Cart>();
+            System.out.println("Product ID: " + productId);
+            System.out.println("Price: " + price);
+
+            // ✅ DB CONNECTION
+            Connection con = DataAccess.getConnection();
+
+            // ✅ INSERT QUERY
+            PreparedStatement ps = con.prepareStatement(
+                "INSERT INTO tbl_cartmaster(productId, userId, quantity, price) VALUES(?,?,?,?)"
+            );
+
+            ps.setInt(1, productId);
+            ps.setInt(2, userId);
+            ps.setInt(3, 1);
+            ps.setDouble(4, price);
+
+            int i = ps.executeUpdate();
+
+            if (i > 0) {
+                System.out.println("INSERT SUCCESS ✅");
+            } else {
+                System.out.println("INSERT FAILED ❌");
+            }
+
+            con.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        // Create Cart Object
-        Cart c = new Cart();
-        c.setProductId(productId);
-        c.setProductName(productName);
-        c.setPrice(price);
-
-        cartList.add(c);
-
-        session.setAttribute("cart", cartList);
-
-        // Redirect to cart page
+        // ✅ REDIRECT TO CART PAGE
         response.sendRedirect("frmCart.jsp");
     }
 }
