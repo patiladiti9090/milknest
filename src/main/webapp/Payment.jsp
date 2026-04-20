@@ -1,14 +1,5 @@
-<%@page import="java.util.ArrayList"%>
-<%@page import="com.milknest.milknest_online_services.Cart"%>
-
-<%
-ArrayList<Cart> cartList = (ArrayList<Cart>) session.getAttribute("cart");
-
-if(cartList == null || cartList.isEmpty()){
-    response.sendRedirect("frmCart.jsp");
-    return;
-}
-%>
+<%@page import="java.sql.*"%>
+<%@page import="com.milknest.milknest_online_services.DataAccess"%>
 
 <!DOCTYPE html>
 <html>
@@ -38,6 +29,38 @@ body {
 <div class="card p-4">
 
 <h2 class="text-center mb-4">? Select Payment Method</h2>
+
+<%
+    boolean isEmpty = true;
+
+    try {
+        Connection con = DataAccess.getConnection();
+
+        PreparedStatement ps = con.prepareStatement(
+            "SELECT * FROM tbl_cartmaster WHERE userId=?"
+        );
+
+        ps.setInt(1, 1); // temp user
+
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            isEmpty = false;
+        }
+
+        rs.close();
+        ps.close();
+        con.close();
+
+    } catch(Exception e){
+        out.println(e);
+    }
+
+    if(isEmpty){
+        response.sendRedirect("frmCart.jsp");
+        return;
+    }
+%>
 
 <form action="ProcessPayment.jsp" method="post">
 
