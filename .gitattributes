@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Exclude third-party Bootstrap files from language statistics
+src/main/webapp/bootstrap/** linguist-vendored
