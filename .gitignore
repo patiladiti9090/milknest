@@ -1,6 +1,8 @@
-target/
-*.class
 *.log
 nbproject/private/
 build/
 dist/
+target/
+*.class
+
+
